@@ -1,0 +1,30 @@
+{
+  "name": "hello-nft-api",
+  "version": "1.0.0",
+  "description": "Provider API for the 'Hello NFT' Ethereum application.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "client:build": "(cd client && npm run build)",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stelios Gerogiannakis",
+  "license": "MIT",
+  "dependencies": {
+    "@svgdotjs/svg.js": "^3.0.16",
+    "date-fns": "^2.19.0",
+    "express": "^4.17.1",
+    "node-cache": "^5.1.2",
+    "nodemon": "^2.0.7",
+    "web3": "^1.4.0"
+  },
+  "nodemonConfig": {
+    "events": {
+      "restart": "npm run client:build"
+    },
+    "watch": [
+      "./*.js",
+      "./client/src/"
+    ]
+  }
+}
