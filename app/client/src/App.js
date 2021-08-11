@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { CompactPicker } from 'react-color';
 import ColorTokenView from "./views/ColorTokenView"
 import ClaimFormView from "./views/ClaimFormView"
-import { loadTokenForColor, connectToBlockchain, isConnectedToBlockchain, initWeb3, isWeb3Ready, loadAllMintedColors, tokenIdFromColor } from "./model/Blockchain"
+import { loadTokenForColor, connectToBlockchain, isConnectedToBlockchain, initWeb3, isWeb3Ready, loadAllMintedColors } from "./model/Blockchain"
+import { tokenIdFromHex } from './utils';
 import { Col, Container, Row } from 'react-bootstrap';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -20,10 +21,12 @@ class App extends Component {
   }
 
   handleColorChange = (color) => {
-    this.setState({ selectedColor: color.hex });
+    let hex = color.hex.toString();
+    this.setState({ selectedColor: hex });
   };
 
   loadBlockchainData = async () => {
+
     if (!isWeb3Ready() || !isConnectedToBlockchain()) {
       return
     }
@@ -37,7 +40,7 @@ class App extends Component {
   }
 
   getTokenForColor = (color) => {
-    return this.state.allMintedColors[tokenIdFromColor(color)]
+    return this.state.allMintedColors[tokenIdFromHex(color)]
   }
 
   componentDidMount = async () => {
@@ -54,7 +57,7 @@ class App extends Component {
 
   renderClaimFormOrAlreadyClaimed = () => {
     if (this.state.loadingBlockchainData) {
-      return (<p>loading …</p>)
+      return (<p>Loading...<br/>Make sure your Metamask wallet is connected!</p>)
     }
 
     let token = this.getTokenForColor(this.state.selectedColor)
@@ -69,9 +72,8 @@ class App extends Component {
           }}
           onDone={ async () => {
             let newColorToken = await loadTokenForColor(this.state.selectedColor)
-            console.log(newDateColor)
             let allMintedColors = this.state.allMintedColors
-            allMintedColors[tokenIdFromColor(this.state.selectedColor)] = newColorToken
+            allMintedColors[tokenIdFromHex(this.state.selectedColor)] = newColorToken
             this.setState({ allMintedColors })
 
             this.setState({ loadingBlockchainData: false })
@@ -90,13 +92,18 @@ class App extends Component {
         <ColorTokenView tokenId={token.tokenId} color={token.color} />
         <p className="mt-3">
           <span className="tokenTitle noteBox py-2 px-2">
+            {token.colorName}
+          </span>
+        </p>
+        <p className="mt-3">
+          <span className="tokenTitle noteBox py-2 px-2">
             {token.title}
           </span>
         </p>
         <p className="ownerAdress mt-3">
           <b>Owner:</b>
           <a href={`https://opensea.io/accounts/${token.owner}`}>
-            {token.owner.substring(0,16)}...
+            {token.owner}
           </a>
         </p>
       </div>
@@ -104,8 +111,6 @@ class App extends Component {
   }
 
   render() {
-    let white = '#ffffff'
-
     return (
       <Container fluid>
         <Row className="justify-content-center dark headline">
@@ -115,17 +120,11 @@ class App extends Component {
           </div>
         </Row>
         <Row id="explanation" className="justify-content-center bg-light pt-4 pb-3">
-          <Col lg="3" md="6" sm="12" className="text-center">
-            <div>
-              <ColorTokenView tokenId={tokenIdFromColor(white)} color="#ffffff"/>
-              <p className="mt-2">White color</p>
-            </div>
-          </Col>
-          <Col lg="3" md="6" sm="12" className="mt-10">
-          <p>COLOR TOKEN are ERC721 Non-Fungible-Tokens stored inside the Ethereum Blockchain.</p>
-          <p>Each COLOR TOKEN is unique. There can only be 256, one for each color on the standard 8-bit palette. The
+          <Col lg="12" md="12" sm="12" className="mt-10">
+          <p>COLORs are ERC721 Non-Fungible-Tokens stored inside the Ethereum Blockchain.</p>
+          <p>Each COLOR token is unique. There can only be 245, one for each unique color code on the Xterm color palette. The
           color is fully encoded in each element of the token.</p>
-          <p>The owner of a COLOR TOKEN can change its title and trade it like any other ERC721 NFT.</p>
+          <p>The owner of a COLOR TOKEN can trade it like any other ERC721 NFT.</p>
           </Col>
         </Row>
         <Row className="medium text-center pt-4">
@@ -143,13 +142,13 @@ class App extends Component {
             <CompactPicker
                     color={ this.state.selectedColor }
                     onChangeComplete={ this.handleColorChange }
-                    colors = [
+                    colors = {[
                     "#000000", "#800000", "#008000", "#808000", "#000080", "#800080", "#008080", "#c0c0c0", "#808080",
-                    "#ff0000", "#00ff00", "#ffff00", "#0000ff", "#ff00ff", "#00ffff", "#ffffff", "#000000", "#00005f",
-                    "#000087", "#0000af", "#0000d7", "#0000ff", "#005f00", "#005f5f", "#005f87", "#005faf", "#005fd7",
+                    "#ff0000", "#00ff00", "#ffff00", "#0000ff", "#ff00ff", "#00ffff", "#ffffff", /*"#000000",*/ "#00005f",
+                    "#000087", "#0000af", "#0000d7", /*"#0000ff",*/ "#005f00", "#005f5f", "#005f87", "#005faf", "#005fd7",
                     "#005fff", "#008700", "#00875f", "#008787", "#0087af", "#0087d7", "#0087ff", "#00af00", "#00af5f",
                     "#00af87", "#00afaf", "#00afd7", "#00afff", "#00d700", "#00d75f", "#00d787", "#00d7af", "#00d7d7",
-                    "#00d7ff", "#00ff00", "#00ff5f", "#00ff87", "#00ffaf", "#00ffd7", "#00ffff", "#5f0000", "#5f005f",
+                    "#00d7ff", /*"#00ff00",*/ "#00ff5f", "#00ff87", "#00ffaf", "#00ffd7", /*"#00ffff",*/ "#5f0000", "#5f005f",
                     "#5f0087", "#5f00af", "#5f00d7", "#5f00ff", "#5f5f00", "#5f5f5f", "#5f5f87", "#5f5faf", "#5f5fd7",
                     "#5f5fff", "#5f8700", "#5f875f", "#5f8787", "#5f87af", "#5f87d7", "#5f87ff", "#5faf00", "#5faf5f",
                     "#5faf87", "#5fafaf", "#5fafd7", "#5fafff", "#5fd700", "#5fd75f", "#5fd787", "#5fd7af", "#5fd7d7",
@@ -165,33 +164,20 @@ class App extends Component {
                     "#d70087", "#d700af", "#d700d7", "#d700ff", "#d75f00", "#d75f5f", "#d75f87", "#d75faf", "#d75fd7",
                     "#d75fff", "#d78700", "#d7875f", "#d78787", "#d787af", "#d787d7", "#d787ff", "#d7af00", "#d7af5f",
                     "#d7af87", "#d7afaf", "#d7afd7", "#d7afff", "#d7d700", "#d7d75f", "#d7d787", "#d7d7af", "#d7d7d7",
-                    "#d7d7ff", "#d7ff00", "#d7ff5f", "#d7ff87", "#d7ffaf", "#d7ffd7", "#d7ffff", "#ff0000", "#ff005f",
-                    "#ff0087", "#ff00af", "#ff00d7", "#ff00ff", "#ff5f00", "#ff5f5f", "#ff5f87", "#ff5faf", "#ff5fd7",
+                    "#d7d7ff", "#d7ff00", "#d7ff5f", "#d7ff87", "#d7ffaf", "#d7ffd7", "#d7ffff", /*"#ff0000",*/ "#ff005f",
+                    "#ff0087", "#ff00af", "#ff00d7", /*"#ff00ff",*/ "#ff5f00", "#ff5f5f", "#ff5f87", "#ff5faf", "#ff5fd7",
                     "#ff5fff", "#ff8700", "#ff875f", "#ff8787", "#ff87af", "#ff87d7", "#ff87ff", "#ffaf00", "#ffaf5f",
                     "#ffaf87", "#ffafaf", "#ffafd7", "#ffafff", "#ffd700", "#ffd75f", "#ffd787", "#ffd7af", "#ffd7d7",
-                    "#ffd7ff", "#ffff00", "#ffff5f", "#ffff87", "#ffffaf", "#ffffd7", "#ffffff", "#080808", "#121212",
+                    "#ffd7ff", /*"#ffff00",*/ "#ffff5f", "#ffff87", "#ffffaf", "#ffffd7", /*"#ffffff",*/ "#080808", "#121212",
                     "#1c1c1c", "#262626", "#303030", "#3a3a3a", "#444444", "#4e4e4e", "#585858", "#626262", "#6c6c6c",
-                    "#767676", "#808080", "#8a8a8a", "#949494", "#9e9e9e", "#a8a8a8", "#b2b2b2", "#bcbcbc", "#c6c6c6",
+                    "#767676", /*"#808080",*/ "#8a8a8a", "#949494", "#9e9e9e", "#a8a8a8", "#b2b2b2", "#bcbcbc", "#c6c6c6",
                     "#d0d0d0", "#dadada", "#e4e4e4", "#eeeeee"
-                    ]
+                    ]}
                   />
           </Col>
           <Col lg="3" md="6" sm="12" className="mt-3">
             {this.renderClaimFormOrAlreadyClaimed()}
           </Col>
-        </Row>
-        <Row id="rarity" className="justify-content-center pt-4 bg-light">
-          <Col lg="6" md="8" sm="12" className="text-center">
-          < h2 className="headline">Rarity</h2>
-            <p>Each date is unique, but in order to increase the fun while minting, there are also some materials a DATE TOKEN can be minted with. The material is randomly choosen during the process and stored for eternity in the blockchain.</p>
-          </Col>
-        </Row>
-        <RarityView />
-        <Row className="medium justify-content-center pt-4"> 
-          <h2 className="headline">Date inventory</h2>
-        </Row>
-        <Row className="medium justify-content-center pt-4"> 
-          <h2>coming soon …</h2>
         </Row>
       </Container>
     );

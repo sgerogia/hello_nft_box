@@ -2,20 +2,31 @@ const express = require('express')
 const app = express()
 const path = require('path');
 
-
 const port = process.env.PORT || 8080;
 const baseUri = process.env.BASE_URI || "http://localhost:8080";
 const contractAddress = process.env.CONTRACT_ADDRESS;
 const infuraToken = process.env.INFURA_TOKEN;
-const network = process.env.NETWORK || "rinkeby";
+const network = function () {
+    let net = process.env.NETWORK || "rinkeby";
+
+    switch(net) {
+        case "ganache":
+            return "http://localhost:7545";
+        case "rinkeby":
+           return `https://${network}.infura.io/v3/${infuraToken}`;
+        default:
+            throw `${network} is not supported. Only 'ganache' and 'rinkeby' are supported.`
+    }
+};
+
 
 const Web3 = require('web3');
-const DateToken = require("./contracts/Color.json");
-const web3 = new Web3(new Web3.providers.HttpProvider(`https://${network}.infura.io/v3/${infuraToken}`));
+const ColorToken = require("./contracts/Color.json");
+const web3 = new Web3(new Web3.providers.HttpProvider(network()));
 
-const contract = new web3.eth.Contract(DateToken.abi, contractAddress);
+const contract = new web3.eth.Contract(ColorToken.abi, contractAddress);
 
-const { isNumeric, colorToMaterialName, isLeapYear, toDate } = require("./utils.js")
+const { isNumeric, colorIdToXtermName } = require("./client/src/utils.js")
 const { generateSVG } = require("./svg.js")
 
 const NodeCache = require( "node-cache" );
@@ -45,30 +56,21 @@ app.get('/token/:tokenId', async (req, res) => {
     }
 
     try {
-        let { color, title } = await contract.methods.get(tokenId).call()
-
+        let { colorName, title } = await contract.methods.getData(parseInt(tokenId)).call();
+        debugger;
         let result = {
             name: title,
-            description: "COLOR TOKENs are ERC721 Non-Fungible-Tokens stored inside the Ethereum Blockchain.\n\nEach COLOR TOKEN is unique. There can only be one for each color in the 8-bit color palette.\n\nThe owner of a COLOR TOKEN can change its title and trade it like any other ERC721 NFT.",
+            description: "COLOR TOKENs are ERC721 Non-Fungible-Tokens stored inside the Ethereum Blockchain.\n\nEach COLOR TOKEN is unique. There can only be one for each color in the 8-bit color palette.\n\nThe owner of a COLOR TOKEN can trade it like any other ERC721 NFT.",
             image: `${baseUri}/token/svg/${tokenId}`,
             attributes: [
                 {
-                    "color_hex": "Hex",
-                    "value": colorToMaterialName(parseInt(color))
+                    "color_name": "Color Name",
+                    "value": colorName
                 },
                 {
-                    "trait_type": "Is Leap Year",
-                    "value": isLeapYear(parseInt(year)) ? "yes" : "no"
-                },
-                {
-                    "trait_type": "Is Leap Day",
-                    "value": (day === "29" && month === "2") ? "yes" : "no"
-                },
-                {
-                    "display_type": "date",
-                    "trait_type": "Date",
-                    "value": toDate(year, month, day).getTime()
-                  }
+                    "xterm_color": "Xterm color",
+                    "value": colorIdToXtermName(tokenId)
+                }
             ]
         }
         cache.set(tokenId, result)
@@ -82,18 +84,14 @@ app.get('/token/:tokenId', async (req, res) => {
 
 app.get('/token/svg/:tokenId', async (req, res) => {
     let tokenId = req.params.tokenId
-    let year = req.params.year
-    let month = req.params.month
-    let day = req.params.day
-    let color = req.params.color
 
-    if (!isNumeric(tokenId) || !isNumeric(year) || !isNumeric(month) || !isNumeric(day)) {
+    if (!isNumeric(tokenId)) {
         res.sendStatus(404)
         return
     }
     try {
         res.setHeader('Content-Type', 'image/svg+xml');
-        res.send(generateSVG(tokenId, year, month, day, color))
+        res.send(generateSVG(tokenId))
     }
     catch {
         res.sendStatus(404)
@@ -101,5 +99,5 @@ app.get('/token/svg/:tokenId', async (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`Date Chain API listening port ${port}`)
+    console.log(`COLOR Token API port: ${port}`)
 })

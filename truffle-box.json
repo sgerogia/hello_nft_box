@@ -6,11 +6,15 @@
 
   "commands": {
     "Compile contract": "truffle compile",
-    "Migrate (deploy) contract to an environment": "truffle migrate",
-    "Test contract": "truffle test"
+    "Migrate (deploy) contract to an environment": "truffle migrate --network <id>",
+    "Run test suite": "truffle test",
+    "Test suite (USD/EUR cost estimation)": "COINMARKETCAP_API_KEY=<YOUR_KEY> truffle test"
   },
 
   "hooks": {
-    "post-unpack": "npm install"
+    "post-unpack": "chmod +x scripts/compile.sh",
+    "post-unpack": "npm install",
+    "post-unpack": "npm install --prefix ./app",
+    "post-unpack": "npm install --prefix ./app/client"
   }
 }

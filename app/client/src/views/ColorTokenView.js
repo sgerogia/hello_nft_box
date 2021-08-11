@@ -11,7 +11,7 @@ class ColorTokenView extends Component {
 
             <img 
                 key={tokenId}
-                alt={`Color Token ${tokenId}`}
+                alt={`Token ${tokenId}, Color ${color}`}
                 src={`${apiBaseUrl}/token/svg/${tokenId}`}
                 style={{
                     width: "100%",
@@ -26,4 +26,4 @@ class ColorTokenView extends Component {
     }
 }
 
-export default DateTokenView;
+export default ColorTokenView;

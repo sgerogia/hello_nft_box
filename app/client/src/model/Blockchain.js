@@ -1,20 +1,22 @@
 import Web3 from 'web3';
-import HelloNftToken from "../contracts/HelloNft.json";
+import ColorToken from "../contracts/Color.json";
+import { tokenIdFromHex } from '../utils';
 
-let contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS
+const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS
 
 let web3 = undefined
 let account = undefined
 let contract = undefined
 
-export function tokenIdFromDate(date) {
-    return (date.getFullYear()-1)*372 + date.getMonth()*31 + date.getDate()-1 
-}
-
 export async function initWeb3() {
     if (window.ethereum) {
       web3 = new Web3(window.ethereum)
       await window.ethereum.enable()
+
+      // update the account used for transactions based on Metamask selection
+      window.ethereum.on('accountsChanged', function (accounts) {
+        account = accounts[0];
+      });
       return true
     }
     else if (window.web3) {
@@ -32,7 +34,7 @@ export function isWeb3Ready() {
 export async function connectToBlockchain() {
     const accounts = await web3.eth.getAccounts()
 
-    contract = new web3.eth.Contract(HelloNftToken.abi, contractAddress)
+    contract = new web3.eth.Contract(ColorToken.abi, contractAddress)
     account = accounts[0]
 }
 
@@ -41,7 +43,7 @@ export function isConnectedToBlockchain() {
 }
 
 export async function loadAllMintedColors() {
-    if (!isConnectedToBlockchain) {
+    if (!isConnectedToBlockchain()) {
         return {}
     }
 
@@ -52,32 +54,33 @@ export async function loadAllMintedColors() {
         const token = await loadToken(tokenId)
         allMintedColors[tokenId.toString()] = token
     }
-    return allMintedDates
+    return allMintedColors
 }
 
-export function claimColor(color, note) {
+export function claimColor(color, colorName, title) {
     return contract.methods.claim(
         color,
-        note,
+        colorName,
+        title,
     ).send({
-        from: account, 
-        value: Web3.utils.toWei('10', 'finney')
+        from: account,
+        value: Web3.utils.toWei('0.01', 'ether')
     })
 }
 
 export async function loadToken(tokenId) {
-    const tokenData = await contract.methods.get(tokenId).call()
+    const tokenData = await contract.methods.getData(tokenId).call()
     const owner = await contract.methods.ownerOf(tokenId).call()
 
     return {
         tokenId: tokenId,
-        color: tokenData[0],
-        title: tokenData[1].toString(),
+        colorName: tokenData[0],
+        title: tokenData[1],
         owner: owner
     }
 }
 
 export async function loadTokenForColor(color) {
-    let token = await loadToken(tokenIdFromColor(color))
+    let token = await loadToken(tokenIdFromHex(color))
     return token
 }
