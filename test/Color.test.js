@@ -32,7 +32,7 @@ contract("Color", (accounts) => {
 
         it("has correct default tokenURI", async () => {
             let tokenURI = await color.tokenURI(0)
-            expect(tokenURI).to.equal("https://color-nft-sgerogia.herokuapp.com/token/0")
+            expect(tokenURI).to.equal("https://color-nft-rinkeby.herokuapp.com/token/0")
         })
 
         it("gifts the owner color Black", async () => {
