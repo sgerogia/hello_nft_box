@@ -12,9 +12,6 @@
   },
 
   "hooks": {
-    "post-unpack": "chmod +x scripts/compile.sh",
-    "post-unpack": "npm install",
-    "post-unpack": "npm install --prefix ./app",
-    "post-unpack": "npm install --prefix ./app/client"
+    "post-unpack": "chmod +x scripts/compile.sh && npm install && npm install --prefix ./app && npm install --prefix ./app/client"
   }
 }
