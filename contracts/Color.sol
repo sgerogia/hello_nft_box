@@ -27,7 +27,7 @@ contract Color is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burnable {
 
     // set base URI and mint a few tokens for the owner's address
     constructor() ERC721("Color", "COLOR") {
-        _baseMetadataURI = "https://color-nft-sgerogia.herokuapp.com/token/";
+        _baseMetadataURI = "https://color-nft-rinkeby.herokuapp.com/token/";
 
         mint(0, "Black", "Blackest black");
         mint(15, "White", "Whitest white");

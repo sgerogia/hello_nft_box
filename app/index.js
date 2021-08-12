@@ -5,7 +5,7 @@ const path = require('path');
 const port = process.env.PORT || 8080;
 const baseUri = process.env.BASE_URI || "http://localhost:8080";
 const contractAddress = process.env.CONTRACT_ADDRESS;
-const infuraToken = process.env.INFURA_TOKEN;
+const infuraToken = process.env.INFURA_API_KEY;
 const network = function () {
     let net = process.env.NETWORK || "rinkeby";
 

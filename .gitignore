@@ -1,4 +1,4 @@
 build
 *.iml
-.secret
+.env
 node_modules

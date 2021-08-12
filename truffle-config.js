@@ -20,11 +20,11 @@
 
 // const HDWalletProvider = require('@truffle/hdwallet-provider');
 //
+const HDWalletProvider = require('@truffle/hdwallet-provider');
 require('dotenv').config();
-const fs = require('fs');
 
-const mnemonic = fs.readFileSync(".secret").toString().trim();
-const infuraToken = process.env["INFURA_TOKEN"];
+const privateKey = process.env["PRIVATE_KEY"];
+const infuraToken = process.env["INFURA_API_KEY"];
 
 module.exports = {
   /**
@@ -46,7 +46,7 @@ module.exports = {
     },
 
     rinkeby : {
-      provider: () => new HDWalletProvider(mnemonic, 'https://rinkeby.infura.io/v3/${infuraToken}', 0),
+      provider: () => new HDWalletProvider(privateKey, 'https://rinkeby.infura.io/v3/' + infuraToken, 0),
       network_id: 4,       // Rinkeby's id
       gas: 5500000,        // Rinkeby has a lower block limit than mainnet
       confirmations: 2,    // # of confs to wait between deployments. (default: 0)
