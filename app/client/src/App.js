@@ -123,7 +123,7 @@ class App extends Component {
           <Col lg="12" md="12" sm="12" className="mt-10">
           <p>COLORs are ERC721 Non-Fungible-Tokens stored inside the Ethereum Blockchain.</p>
           <p>Each COLOR token is unique. There can only be 245, one for each unique color code on the Xterm color palette. The
-          color is fully encoded in each element of the token.</p>
+          color is fully encoded in each token.</p>
           <p>The owner of a COLOR TOKEN can trade it like any other ERC721 NFT.</p>
           </Col>
         </Row>

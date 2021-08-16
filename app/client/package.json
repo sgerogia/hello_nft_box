@@ -1,6 +1,10 @@
 {
   "name": "hello_nft_client",
   "version": "1.0.0",
+  "engines": {
+    "node": "16.x",
+    "npm": "7.x"
+  },
   "private": true,
   "dependencies": {
     "@babel/core": "^7.4.5",
